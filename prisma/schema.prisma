@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        String     @id @default(uuid()) // product_id
+  name      String
+  category  String
+  price     Decimal    @db.Decimal(12, 2)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     BillItem[]
+}
+
+model Bill {
+  id              String     @id @default(uuid()) // bill_id
+  date            DateTime   @default(now())
+  customerName    String
+  customerMobile  String?
+  customerAddress String?
+  remarks         String?
+  billAmount      Decimal    @db.Decimal(12, 2)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  items           BillItem[]
+  payments        Payment[]
+}
+
+model BillItem {
+  id          String    @id @default(uuid())
+  bill        Bill      @relation(fields: [billId], references: [id])
+  billId      String
+  product     Product?  @relation(fields: [productId], references: [id])
+  productId   String?
+  description String?
+  qty         Int       @default(1)
+  unitPrice   Decimal   @db.Decimal(12, 2)
+  totalPrice  Decimal   @db.Decimal(12, 2)
+  createdAt   DateTime  @default(now())
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  bill      Bill     @relation(fields: [billId], references: [id])
+  billId    String
+  amount    Decimal  @db.Decimal(12, 2)
+  method    String? // cash/card/upi/online
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id        String     @id @default(cuid())
+  name      String
+  mobile    String
+  address   String?
+  shortNote String? // optional one-liner note about the customer
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  billItems BillItem[]
+}
