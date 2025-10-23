@@ -35,6 +35,4 @@ app.use("/customers", customerRoutes);
 /* Health */
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
-});
+module.exports = app;
